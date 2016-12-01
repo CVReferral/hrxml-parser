@@ -1,0 +1,27 @@
+{
+  "name": "geekupvn/hrxml-parser",
+  "description": "A simple parser for HRXML",
+  "homepage": "https://github.com/geekupvn/hrxml-parser",
+  "keywords": [
+    "php",
+    "hrxml",
+    "parser",
+    "geekupvn"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Khanh Tran",
+      "email": "khanh.tq@geekup.vn"
+    }
+  ],
+  "require-dev": {
+    "phpunit/phpunit": "~3.7.0"
+  },
+  "require": {},
+  "autoload": {
+    "psr-0": {
+      "Hrxml": "lib"
+    }
+  }
+}
