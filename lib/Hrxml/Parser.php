@@ -82,6 +82,7 @@ class Parser {
 			$work->description = self::getNodeValue($xmlWork, 'JobDescription');
 			
 			$startDate = self::getNodeValue($xmlWork, 'StartDate');
+			$startDateTime = false;
 			if ($startDate) {
 				$startDateTime = self::parseDateString($startDate, '/');
 			}
