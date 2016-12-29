@@ -34,12 +34,9 @@ class Parser {
 		}
 		$dob = self::getNodeValue($xml, 'DateOfBirth');
 		if ($dob) {
-			$dobTime = self::parseDateString($dob, '/');
-			if (!$dobTime) {
-				$dobTime = self::parseDateString($dob, '-');
-			}
-			if ($dobTime) {
-				$candidate->birth_year = date('Y', $dobTime);
+			$dobTime = self::parseDateString($dob);
+			if (count($dobTime) > 0 && strlen($dobTime[count($dobTime) - 1]) == 4) {
+				$candidate->birth_year = $dobTime[count($dobTime) - 1];
 			}
 		}
 		$gender = strtolower(self::getNodeValue($xml, 'Gender'));
@@ -51,7 +48,7 @@ class Parser {
 				$gender = 'Nam';
 				break;
 		}
-		$candidate->sex = $gender;
+		$candidate->gender = $gender;
 
 		//TODO: should store to S3
 		$candidate->avatar = self::getNodeValue($xml->CandidateImage, 'CandidateImageData');
@@ -84,25 +81,21 @@ class Parser {
 			$startDate = self::getNodeValue($xmlWork, 'StartDate');
 			$startDateTime = false;
 			if ($startDate) {
-				$startDateTime = self::parseDateString($startDate, '/');
+				$startDateTime = self::parseDateString($startDate);
 			}
-			if (!$startDateTime) {
-				$startDateTime = self::parseDateString($startDate, '-');
+			if (count($startDateTime) > 0) {
+				$work->from = implode('/', [$startDateTime[count($startDateTime) - 2], $startDateTime[count($startDateTime) - 1]]);
 			}
-			if ($startDateTime) {
-				$work->from = date('m/Y', $startDateTime);
-			}
-
+			
+			$jobPeriod = self::getNodeValue($xmlWork, 'JobPeriod');
 			$endDate = self::getNodeValue($xmlWork, 'EndDate');
-			if (strtolower($endDate) === 'till') {
-				$work->to = 'Hiện tại';
+			if ($jobPeriod && count(explode(' - ', $jobPeriod)) == 2 && strtolower(explode(' - ', $jobPeriod)[1]) == 'till') {
+				$work->is_present = 1;
+				$work->to = 'Đến nay';
 			} elseif ($endDate) {
-				$endDateTime = self::parseDateString($endDate, '/');
-				if (!$endDateTime) {
-					$endDateTime = self::parseDateString($endDate, '-');
-				}
-				if ($endDateTime) {
-					$work->to = date('m/Y', $endDateTime);
+				$endDateTime = self::parseDateString($endDate);
+				if (count($endDateTime) > 0) {
+					$work->to = implode('/', [$endDateTime[count($endDateTime) - 2], $endDateTime[count($endDateTime) - 1]]);
 				}
 			}
 		
@@ -142,15 +135,7 @@ class Parser {
 	}
 
 	public static function parseDateString($string, $separator = '/') {
-		$time = strtotime($string);
-		if ($time) {
-			return $time;
-		} else {
-			$arr = explode($separator, $string);
-			if (count($arr) === 3) {
-				return self::parseDateString(implode('-', [$arr[2], $arr[1], $arr[0]]));
-			}
-		}
-		return false;
+		$arr = explode($separator, $string);
+		return (count($arr) >= 2) ? $arr : [];
 	}
 }
