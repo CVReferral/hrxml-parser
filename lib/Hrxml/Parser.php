@@ -61,7 +61,7 @@ class Parser {
 			$edu = new \StdClass;
 			$edu->id = 'edu-' . $i;
 			$edu->school = self::getNodeValue($xmlEdu, 'UniversityName');
-			$edu->degree = self::getNodeValue($xmlEdu, 'Degree');
+			$edu->name = self::getNodeValue($xmlEdu, 'Degree');
 			$edu->to = self::getNodeValue($xmlEdu, 'Year');
 			
 			$candidate->education_list []= $edu;
