@@ -24,6 +24,10 @@ class Parser {
   }
 
 	public function parse($xml) {
+		if (strtolower($xml->getName()) == 'error') {
+			throw new \Exception(self::getNodeValue($xml, 'errormsg'), intval(self::getNodeValue($xml, 'errorcode')));
+		}
+		
 		$candidate = new \StdClass;
 		$candidate->first_name = self::getNodeValue($xml, 'FirstName');
 		$candidate->last_name = self::getNodeValue($xml, 'LastName');
