@@ -23,11 +23,54 @@ class Parser {
     return $this->parse($xml);
   }
 
-	public function parse($xml) {
-		if (strtolower($xml->getName()) == 'error') {
-			throw new \Exception(self::getNodeValue($xml, 'errormsg'), intval(self::getNodeValue($xml, 'errorcode')));
+	public function extractHtmlWithoutContactInfo($xmlString, $replacement = '**********') {
+		$xml = simplexml_load_string($xmlString);
+		$html = (string)$xml->htmlresume;
+
+		$email = self::getNodeValue($xml, 'Email');
+		$alternateEmail = self::getNodeValue($xml, 'AlternateEmail');
+		$phone = self::getNodeValue($xml, 'Phone');
+		$formattedPhone = self::getNodeValue($xml, 'FormattedPhone');
+		$maskArr = [];
+		if ($this->isNotEmpty($email)) {
+			array_push($maskArr, $email);
 		}
-		
+		if ($this->isNotEmpty($alternateEmail)) {
+			array_push($maskArr, $alternateEmail);
+		}
+		if ($this->isNotEmpty($phone)) {
+			$arrPhones = explode(',', $phone);
+			foreach ($arrPhones as  $p) {
+				array_push($maskArr, $p);
+				array_push($maskArr, substr($p, strlen($p) - 4, 4));
+				array_push($maskArr, substr($p, strlen($p) - 3, 3));
+			}
+		}
+		if ($this->isNotEmpty($formattedPhone)) {
+			$arrPhones = explode(',', $formattedPhone);
+			foreach ($arrPhones as  $p) {
+				array_push($maskArr, $p);
+				array_push($maskArr, substr($p, strlen($p) - 4, 4));
+				array_push($maskArr, substr($p, strlen($p) - 3, 3));
+			}
+		}
+		if (count($maskArr) > 0) {
+			foreach($maskArr as $val) {
+				$html = str_replace($val, $replacement, $html);
+			}
+		}
+
+		return $html;
+	}
+
+	private function isNotEmpty($string) {
+		if ($string != null && $string != false && strlen($string) > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public function parse($xml) {
 		$candidate = new \StdClass;
 		$candidate->first_name = self::getNodeValue($xml, 'FirstName');
 		$candidate->last_name = self::getNodeValue($xml, 'LastName');
@@ -35,6 +78,9 @@ class Parser {
 		$candidate->phone = self::getNodeValue($xml, 'Phone', 'FormattedPhone');
 		if (!$candidate->phone) {
 			$candidate->phone = self::getNodeValue($xml, 'Mobile', 'FormattedMobile');
+		}
+		if ($candidate->phone) {
+			$candidate->phone = explode(',', $candidate->phone)[0];
 		}
 		$dob = self::getNodeValue($xml, 'DateOfBirth');
 		if ($dob) {
