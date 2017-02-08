@@ -119,7 +119,7 @@ class Parser {
 		}
 		
 		// 		Candidates Working Experience Drilldown
-		// 		$candidate->working_list = [];
+		$candidate->working_list = [];
 		$i = 0;
 		foreach ($xml->SegregatedExperience->WorkHistory as $xmlWork) {
 			$work = new \StdClass;
