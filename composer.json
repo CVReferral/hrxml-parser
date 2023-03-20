@@ -1,7 +1,7 @@
 {
-  "name": "geekupvn/hrxml-parser",
+  "name": "cvreferral/hrxml-parser",
   "description": "A simple parser for HRXML",
-  "homepage": "https://github.com/geekupvn/hrxml-parser",
+  "homepage": "https://github.com/CVReferral/hrxml-parser",
   "keywords": [
     "php",
     "hrxml",
